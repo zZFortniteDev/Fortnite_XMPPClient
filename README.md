@@ -18,17 +18,12 @@
     <li>Flexible and easy-to-use interface for interacting with XMPP services.</li>
   </ul>
 
-  <h2>Installation</h2>
-
-  <p>To use this library in your project, you can install it via pip:</p>
-
-  <pre><code>pip install aiohttp</code></pre>
-
   <h2>Usage</h2>
 
   <p>Here's a basic example of how to use the library:</p>
 
-  <pre><code class="python">import aiohttp
+  <pre><code class="python">
+import aiohttp
 import asyncio
 from xmpp_connection import XMPP_connection
 
