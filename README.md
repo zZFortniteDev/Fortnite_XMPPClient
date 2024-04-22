@@ -25,7 +25,7 @@
   <pre><code class="python">
 import aiohttp
 import asyncio
-from xmpp_connection import XMPP_connection
+from xmpp import XMPP_connection
 
 async def main():
     async with aiohttp.ClientSession() as session:
