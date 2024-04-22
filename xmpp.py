@@ -4,34 +4,22 @@ import uuid, base64 #two imports to use
 import urllib.parse #importing the urllib.parse module to parse the Displaynames in MAC message.
 
 class XMPP_connection:
-    def __init__(self) -> None:
-        self.connection_pool = []
-        self.connection_number = 7
+    def __init__(self, session:aiohttp.ClientSession) -> None:
+        #self.connection_pool = []
+        #self.connection_number = 7
+        #useless
         self.server = "prod.ol.epicgames.com"
-        
         loop = asyncio.get_event_loop()
         if not loop.is_running():
             print("Create in the object in async funcion.")
             return
-        self.session = aiohttp.ClientSession()
-        asyncio.create_task(self.UpdatePool())
-    
-    async def UpdatePool(self):
-        new_pool_ = []
-        for _ in range(self.connection_number):
-            new_pool_.append(self.CreateWS())
-        self.connection_pool = await asyncio.gather(*new_pool_)
-
-    async def ReCreatePool(self):
-        new_pool_ = []
-        for _ in range(self.connection_number):
-            new_pool_.append(self.CreateWS())
-        delete_sockets = list(self.connection_pool)
-        self.connection_pool = await asyncio.gather(*new_pool_)
-        for ws in delete_sockets:
-            await ws.close()
-            del ws
-
+        if session is None:
+            self.session = aiohttp.ClientSession()
+        #asyncio.create_task(self.UpdatePool())
+    async def CloseXMPP(self, ws:aiohttp.ClientWebSocketResponse):
+        await ws.close()
+        del ws
+        return
     async def CreateWS(self):
         ws = await self.session.ws_connect(f"wss://xmpp-service-{self.server}", protocols=['xmpp'])
         #<open xmlns="urn:ietf:params:xml:ns:xmpp-framing" to="prod.ol.epicgames.com" version="1.0" />
@@ -42,6 +30,7 @@ class XMPP_connection:
 
     async def get_connection(self) -> aiohttp.ClientWebSocketResponse:
         return self.CreateWS()
+    #All of this are useless as it take around 2sec to open new connection:
     #This part of the pool but no pool uses.
         #l = self.connection_pool
         #if len(l) > 0:
@@ -58,7 +47,21 @@ class XMPP_connection:
     #                await ws.send_str(f'<iq id="{(uuid.uuid4().hex).upper()}" type="get" to="{self.server}" from="{uid}"><ping xmlns="urn:xmpp:ping"/></iq>')
     #            await asyncio.sleep(10)
     #        await self.ReCreatePool()
-
+    #part of pool
+    #async def UpdatePool(self):
+    #    new_pool_ = []
+    #    for _ in range(self.connection_number):
+    #        new_pool_.append(self.CreateWS())
+    #    self.connection_pool = await asyncio.gather(*new_pool_)
+    #async def ReCreatePool(self):
+    #    new_pool_ = []
+    #    for _ in range(self.connection_number):
+    #        new_pool_.append(self.CreateWS())
+    #    delete_sockets = list(self.connection_pool)
+    #    self.connection_pool = await asyncio.gather(*new_pool_)
+    #    for ws in delete_sockets:
+    #        await ws.close()
+    #        del ws
     async def Login(self, ws:aiohttp.ClientWebSocketResponse, account):
         uid = (uuid.uuid4().hex).upper()
         account_id = account['account_id']
@@ -87,7 +90,8 @@ class XMPP_connection:
         await ws.send_str(f'<message to="{friend_id}@prod.ol.epicgames.com" type="chat"><body>{msg}</body></message>')
 
     async def SetPresence(self, ws:aiohttp.ClientWebSocketResponse, status):
-        await ws.send_str('<presence><status>{"Status":"' + status + '","ProductName":"Fortnite"}</status></presence>')
+        status = {"Status":status,"ProductName":"Fortnite"}
+        await ws.send_str('<presence><status>{0}</status></presence>'.format(status))
 
     async def Connect_HeartBeat(self, ws:aiohttp.ClientWebSocketResponse, jid, Flag:bool = True): #flag if needed to stop the heartbeat
         #Create as Task not as main thingi
