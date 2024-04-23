@@ -31,11 +31,11 @@ async def main():
     async with aiohttp.ClientSession() as session:
         xmpp = XMPP_connection(session)
         ws = await xmpp.get_connection()
-        await xmpp.Login(ws, account)
+        jid = await xmpp.Login(ws, account)
+        asyncio.create_task(xmpp.Connect_HeartBeat(ws, jid))
         await xmpp.JoinParty(ws, account, uid, party_id)
         await xmpp.Send_Party_Msg(ws, party_id, "Hello from XMPP!")
         await xmpp.SetPresence(ws, "Online")
-        await xmpp.Connect_HeartBeat(ws, jid)
 
 asyncio.run(main())
   </code></pre>
