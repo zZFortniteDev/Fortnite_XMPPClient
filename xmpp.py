@@ -29,7 +29,7 @@ class XMPP_connection:
         return ws
 
     async def get_connection(self) -> aiohttp.ClientWebSocketResponse:
-        return self.CreateWS()
+        return await self.CreateWS()
     #All of this are useless as it take around 2sec to open new connection:
     #This part of the pool but no pool uses.
         #l = self.connection_pool
