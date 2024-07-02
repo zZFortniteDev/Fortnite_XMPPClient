@@ -13,8 +13,7 @@ class XMPP_connection:
         if not loop.is_running():
             print("Create in the object in async funcion.")
             return
-        if session is None:
-            self.session = aiohttp.ClientSession()
+        session = session or aiohttp.ClientSession()
         #asyncio.create_task(self.UpdatePool())
     async def CloseXMPP(self, ws:aiohttp.ClientWebSocketResponse):
         await ws.close()
